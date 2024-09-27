@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_products"
+            android:title="@string/products" />
+        <item
+            android:id="@+id/nav_orders"
+            android:title="@string/orders" />
+        <item
+            android:id="@+id/nav_dashboard"
+            android:title="@string/dashboard" />
+        <item
+            android:id="@+id/nav_data_policy"
+            android:title="@string/data_policy" />
+        <item
+            android:id="@+id/nav_about_company"
+            android:title="@string/about_dopefits" />
+        <item
+            android:id="@+id/nav_logout"
+            android:title="@string/logout" />
+    </group>
+
+</menu>

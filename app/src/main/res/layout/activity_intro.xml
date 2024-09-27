@@ -34,16 +34,18 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp">
+            android:layout_marginTop="32dp"
+            android:hint="@string/email"
+            android:textColorHint="#546E7A"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:startIconDrawable="@drawable/ic_mail">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/login_email"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/email"
-                android:paddingStart="16dp"
-                android:paddingEnd="32dp"
-                android:textColorHint="#546E7A" />
+                android:layout_height="wrap_content" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -51,18 +53,21 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp">
+            android:layout_marginTop="32dp"
+            android:hint="@string/password"
+            android:textColor="#4A4A4A"
+            android:textColorHint="#546E7A"
+            app:endIconMode="password_toggle"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:startIconDrawable="@drawable/ic_upassword">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/login_password"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/password"
-                android:inputType="textPassword"
-                android:paddingStart="16dp"
-                android:paddingEnd="32dp"
-                android:textColor="#4A4A4A"
-                android:textColorHint="#546E7A" />
+                android:inputType="textPassword" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
