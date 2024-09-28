@@ -44,5 +44,6 @@
     <string name="phone_number">Phone Number</string>
     <string name="full_name">Full Name</string>
     <string name="username">Username</string>
+    <string name="product_image">Image Placeholder</string>
 
 </resources>
