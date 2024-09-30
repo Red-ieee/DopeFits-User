@@ -10,7 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.dopefits.R
 import com.google.firebase.auth.FirebaseAuth
 
-class IntroActivity : AppCompatActivity() {
+class LoginActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var loginButton: Button
     private lateinit var loginEmail: EditText

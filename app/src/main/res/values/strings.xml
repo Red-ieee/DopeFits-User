@@ -37,7 +37,6 @@
     <string name="profile_fragment">Profile Fragment</string>
 
 
-
     <string name="register_title">Register</string>
     <string name="back">Back</string>
     <string name="title_activity_register">RegisterActivity</string>
@@ -45,5 +44,9 @@
     <string name="full_name">Full Name</string>
     <string name="username">Username</string>
     <string name="product_image">Image Placeholder</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="image_description">Image Description</string>
+    <string name="add_to_cart">Add to Cart</string>
 
 </resources>

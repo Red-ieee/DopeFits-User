@@ -1,5 +1,9 @@
 package com.example.dopefits.model
 
+import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
 data class Product(
     val brand: String = "",
     val categoryId: Int = 0,
@@ -10,4 +14,4 @@ data class Product(
     val price: Double = 0.0,
     val size: String = "",
     val title: String = ""
-)
+) : Parcelable

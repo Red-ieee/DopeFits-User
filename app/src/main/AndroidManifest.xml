@@ -18,7 +18,7 @@
             android:label="@string/title_activity_register"
             android:theme="@style/Theme.DopeFits" />
         <activity
-            android:name=".activity.IntroActivity"
+            android:name=".activity.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

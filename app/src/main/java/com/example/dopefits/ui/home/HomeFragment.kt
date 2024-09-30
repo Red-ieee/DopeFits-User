@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.dopefits.R
@@ -28,7 +29,10 @@ class HomeFragment : Fragment() {
         recyclerView = view.findViewById(R.id.recycler_view)
         recyclerView.layoutManager = GridLayoutManager(context, 2)
         productList = mutableListOf()
-        productAdapter = ProductAdapter(productList)
+        productAdapter = ProductAdapter(productList) { product ->
+            val action = HomeFragmentDirections.actionHomeFragmentToProductPageFragment(product)
+            findNavController().navigate(action)
+        }
         recyclerView.adapter = productAdapter
 
         database = FirebaseDatabase.getInstance().getReference("Items")
@@ -47,7 +51,7 @@ class HomeFragment : Fragment() {
                         productList.add(product)
                     }
                 }
-                productAdapter.notifyDataSetChanged()
+                productAdapter.notifyItemRangeInserted(0, productList.size)
             }
 
             override fun onCancelled(error: DatabaseError) {

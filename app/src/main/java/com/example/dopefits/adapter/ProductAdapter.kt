@@ -10,7 +10,10 @@ import com.bumptech.glide.Glide
 import com.example.dopefits.R
 import com.example.dopefits.model.Product
 
-class ProductAdapter(private val productList: List<Product>) : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
+class ProductAdapter(
+    private val productList: List<Product>,
+    private val onItemClick: (Product) -> Unit
+) : RecyclerView.Adapter<ProductAdapter.ProductViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ProductViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_product, parent, false)
@@ -24,7 +27,7 @@ class ProductAdapter(private val productList: List<Product>) : RecyclerView.Adap
 
     override fun getItemCount(): Int = productList.size
 
-    class ProductViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class ProductViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val productImage: ImageView = itemView.findViewById(R.id.product_image)
         private val productName: TextView = itemView.findViewById(R.id.product_name)
         private val productPrice: TextView = itemView.findViewById(R.id.product_price)
@@ -35,6 +38,7 @@ class ProductAdapter(private val productList: List<Product>) : RecyclerView.Adap
             if (product.picUrl.isNotEmpty()) {
                 Glide.with(itemView.context).load(product.picUrl[0]).into(productImage)
             }
+            itemView.setOnClickListener { onItemClick(product) }
         }
     }
 }

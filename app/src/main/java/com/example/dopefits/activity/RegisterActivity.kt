@@ -52,7 +52,7 @@ class RegisterActivity : AppCompatActivity() {
         }
 
         backButton.setOnClickListener {
-            val intent = Intent(this, IntroActivity::class.java)
+            val intent = Intent(this, LoginActivity::class.java)
             startActivity(intent)
             finish()
         }
@@ -108,7 +108,7 @@ class RegisterActivity : AppCompatActivity() {
                             .addOnCompleteListener { dbTask ->
                                 if (dbTask.isSuccessful) {
                                     Toast.makeText(baseContext, "Registration successful. Please log in.", Toast.LENGTH_SHORT).show()
-                                    val intent = Intent(this, IntroActivity::class.java)
+                                    val intent = Intent(this, LoginActivity::class.java)
                                     startActivity(intent)
                                     finish()
                                 } else {
