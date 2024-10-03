@@ -1,19 +1,24 @@
 package com.example.dopefits.ui.productpage
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
-import androidx.viewpager2.widget.ViewPager2
-//import androidx.core.os.bundleOf
-import androidx.core.os.BundleCompat
+import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import androidx.viewpager2.widget.ViewPager2
 import com.example.dopefits.R
 import com.example.dopefits.model.Product
+import com.example.dopefits.model.Cart
+import com.example.dopefits.ui.productpage.ImagePagerAdapter
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.database.FirebaseDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class ProductPageFragment : Fragment() {
 
@@ -22,7 +27,7 @@ class ProductPageFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            product = BundleCompat.getParcelable(it, "product", Product::class.java)!!
+            product = it.getParcelable("product")!!
         }
     }
 
@@ -40,7 +45,7 @@ class ProductPageFragment : Fragment() {
         viewPager.adapter = ImagePagerAdapter(product.picUrl)
 
         view.findViewById<Button>(R.id.add_to_cart_button).setOnClickListener {
-            // Handle add to cart
+            addToCart(product)
         }
 
         view.findViewById<Button>(R.id.back_button).setOnClickListener {
@@ -48,6 +53,36 @@ class ProductPageFragment : Fragment() {
         }
 
         return view
+    }
+
+    private fun addToCart(product: Product) {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                val database = FirebaseDatabase.getInstance()
+                val cartRef = database.getReference("cart").push()
+                cartRef.setValue(product)
+                    .addOnSuccessListener {
+                        CoroutineScope(Dispatchers.Main).launch {
+                            if (isAdded) {
+                                Toast.makeText(requireContext(), "Added to cart", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                    .addOnFailureListener {
+                        CoroutineScope(Dispatchers.Main).launch {
+                            if (isAdded) {
+                                Toast.makeText(requireContext(), "Failed to add to cart", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+            } catch (e: Exception) {
+                CoroutineScope(Dispatchers.Main).launch {
+                    if (isAdded) {
+                        Toast.makeText(requireContext(), "Failed to add to cart", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
     }
 
     override fun onResume() {
@@ -61,12 +96,4 @@ class ProductPageFragment : Fragment() {
         val bottomNav = requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation)
         bottomNav.visibility = View.VISIBLE
     }
-
-//    companion object {
-//        @JvmStatic
-//        fun newInstance(product: Product) =
-//            ProductPageFragment().apply {
-//                arguments = bundleOf("product" to product)
-//            }
-//    }
 }
