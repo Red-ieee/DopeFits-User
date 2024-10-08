@@ -37,7 +37,6 @@ class CartFragment : Fragment() {
             removeFromCart(position) {
                 button.isEnabled = true
                 cartAdapter.setRemovingFlag(position, false)
-                removeItem(position)
             }
         }
         recyclerView.adapter = cartAdapter
@@ -105,12 +104,6 @@ class CartFragment : Fragment() {
         } else {
             onComplete()
         }
-    }
-
-    private fun removeItem(position: Int) {
-        products.removeAt(position)
-        cartAdapter.notifyItemRemoved(position)
-        cartAdapter.notifyItemRangeChanged(position, products.size)
     }
 
     private fun calculateTotalPrice() {
