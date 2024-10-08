@@ -6,16 +6,16 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.compose.ui.geometry.isEmpty
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.semantics.text
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.dopefits.R
 import com.example.dopefits.adapter.CartAdapter
 import com.example.dopefits.model.Product
-import com.google.firebase.database.*
+import com.google.firebase.database.ChildEventListener
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.FirebaseDatabase
 
 class CartFragment : Fragment() {
 
@@ -32,7 +32,14 @@ class CartFragment : Fragment() {
         val recyclerView: RecyclerView = view.findViewById(R.id.cart_recycler_view)
         totalPriceTextView = view.findViewById(R.id.total_price)
         recyclerView.layoutManager = LinearLayoutManager(context)
-        cartAdapter = CartAdapter(products) { position -> removeFromCart(position) } // Modified to accept position
+        cartAdapter = CartAdapter(products) { position, button ->
+            button.isEnabled = false
+            removeFromCart(position) {
+                button.isEnabled = true
+                cartAdapter.setRemovingFlag(position, false)
+                removeItem(position)
+            }
+        }
         recyclerView.adapter = cartAdapter
         loadCartItems()
         return view
@@ -68,9 +75,10 @@ class CartFragment : Fragment() {
                     val key = snapshot.key
                     val index = productKeys.indexOf(key)
                     if (index != -1) {
-                        products.removeAt(index)
                         productKeys.removeAt(index)
+                        products.removeAt(index)
                         cartAdapter.notifyItemRemoved(index)
+                        cartAdapter.notifyItemRangeChanged(index, products.size)
                         calculateTotalPrice()
                     }
                 }
@@ -83,20 +91,26 @@ class CartFragment : Fragment() {
         })
     }
 
-    private fun removeFromCart(position: Int) { // Modified to accept position
+    private fun removeFromCart(position: Int, onComplete: () -> Unit) {
         if (position in 0 until products.size) {
             val productKey = productKeys[position]
             val database = FirebaseDatabase.getInstance()
             val cartRef = database.getReference("cart").child(productKey)
             cartRef.removeValue().addOnSuccessListener {
-                if (products.isEmpty()) {
-                    cartAdapter.notifyDataSetChanged() // Force refresh if cart is empty
-                }
-                // Item removal from local lists and adapter update is handled by onChildRemoved
+                onComplete()
             }.addOnFailureListener {
+                onComplete()
                 // Handle failure to remove from Firebase (e.g., show error message)
             }
+        } else {
+            onComplete()
         }
+    }
+
+    private fun removeItem(position: Int) {
+        products.removeAt(position)
+        cartAdapter.notifyItemRemoved(position)
+        cartAdapter.notifyItemRangeChanged(position, products.size)
     }
 
     private fun calculateTotalPrice() {
