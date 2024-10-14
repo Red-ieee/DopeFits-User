@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.dopefits.R
@@ -26,6 +27,13 @@ class ProductAdapter(
     }
 
     override fun getItemCount(): Int = productList.size
+
+//    fun updateProductList(newProductList: List<Product>) {
+//        val diffCallback = ProductDiffCallback(productList, newProductList)
+//        val diffResult = DiffUtil.calculateDiff(diffCallback)
+//        productList = newProductList
+//        diffResult.dispatchUpdatesTo(this)
+//    }
 
     inner class ProductViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val productImage: ImageView = itemView.findViewById(R.id.product_image)

@@ -10,18 +10,17 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
+import androidx.navigation.fragment.findNavController
 import com.example.dopefits.R
 import com.example.dopefits.model.Product
-import com.example.dopefits.ui.productpage.ImagePagerAdapter
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
-import com.google.firebase.auth.FirebaseAuth
 
 class ProductPageFragment : Fragment() {
 
@@ -36,6 +35,7 @@ class ProductPageFragment : Fragment() {
                 findNavController().navigateUp()
                 return
             }
+            Log.d("ProductPageFragment", "Initialized product with ID ${product.id}")
         }
         lifecycleScope.launch {
             fetchUserId()
@@ -71,25 +71,12 @@ class ProductPageFragment : Fragment() {
         return view
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        // Check if the item is already in the cart after the view is created
-        userId?.let { id ->
-            checkIfInCart(id, product, view.findViewById(R.id.add_to_cart_button))
-        }
-    }
-
     private fun fetchUserId() {
         try {
             val currentUser = FirebaseAuth.getInstance().currentUser
             if (currentUser != null) {
-                val userHash = currentUser.uid
-                userId = userHash
+                userId = currentUser.uid
                 Log.d("ProductPageFragment", "Fetched userId: $userId")
-                if (userId == null) {
-                    Toast.makeText(requireContext(), "User ID is missing", Toast.LENGTH_SHORT).show()
-                }
             } else {
                 Toast.makeText(requireContext(), "No logged-in user", Toast.LENGTH_SHORT).show()
             }
@@ -104,7 +91,14 @@ class ProductPageFragment : Fragment() {
             val database = FirebaseDatabase.getInstance()
             val cartRef = database.getReference("users/$userId/Cart").child(product.id.toString())
             val snapshot = withContext(Dispatchers.IO) { cartRef.get().await() }
-            addToCartButton.isEnabled = !snapshot.exists()
+            if (snapshot.exists()) {
+                Log.d("ProductPageFragment", "Product with ID ${product.id} is already in the cart")
+                addToCartButton.isEnabled = false
+                Toast.makeText(requireContext(), "Item is already in the cart", Toast.LENGTH_SHORT).show()
+            } else {
+                Log.d("ProductPageFragment", "Product with ID ${product.id} is not in the cart")
+                addToCartButton.isEnabled = true
+            }
         }
     }
 
@@ -117,17 +111,23 @@ class ProductPageFragment : Fragment() {
                 val productSnapshot = withContext(Dispatchers.IO) { productRef.get().await() }
 
                 if (!productSnapshot.exists()) {
-                    withContext(Dispatchers.IO) { productRef.setValue(product).await() }
+                    // Ensure the product ID is correctly set
+                    val productToAdd = product.copy(id = product.id)
+                    Log.d("ProductPageFragment", "Adding product with ID ${productToAdd.id} to the cart")
+                    withContext(Dispatchers.IO) { productRef.setValue(productToAdd).await() }
                     if (isAdded) {
+                        Log.d("ProductPageFragment", "Added product with ID ${product.id} to the cart")
                         Toast.makeText(requireContext(), "Added to cart", Toast.LENGTH_SHORT).show()
                         addToCartButton.isEnabled = false
                     }
                 } else {
                     if (isAdded) {
+                        Log.d("ProductPageFragment", "Product with ID ${product.id} is already in the cart")
                         Toast.makeText(requireContext(), "Item is already in the cart", Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {
+                Log.e("ProductPageFragment", "Failed to add product with ID ${product.id} to the cart", e)
                 if (isAdded) {
                     Toast.makeText(requireContext(), "Failed to add to cart", Toast.LENGTH_SHORT).show()
                 }
