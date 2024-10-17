@@ -2,19 +2,26 @@ package com.example.dopefits.activity
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.dopefits.R
+import com.example.dopefits.model.User
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
 import com.google.firebase.auth.FirebaseAuthUserCollisionException
 import com.google.firebase.auth.FirebaseAuthWeakPasswordException
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
+import com.google.firebase.database.MutableData
+import com.google.firebase.database.Transaction
+import com.google.firebase.database.DataSnapshot
 
 class RegisterActivity : AppCompatActivity() {
+
     private lateinit var auth: FirebaseAuth
     private lateinit var database: DatabaseReference
     private lateinit var registerButton: Button
@@ -40,7 +47,10 @@ class RegisterActivity : AppCompatActivity() {
         registerPhoneNumber = findViewById(R.id.register_phone_number)
         registerPassword = findViewById(R.id.register_password)
 
+        Log.d("RegisterActivity", "Register button initialized: $registerButton")
+
         registerButton.setOnClickListener {
+            Log.d("RegisterActivity", "Register button clicked")
             val fullName = registerFullName.text.toString()
             val username = registerUsername.text.toString()
             val email = registerEmail.text.toString()
@@ -97,24 +107,45 @@ class RegisterActivity : AppCompatActivity() {
         return true
     }
 
+    private fun generateUniqueUserId(callback: (Int) -> Unit) {
+        val userIdRef = database.child("metadata").child("unique_user_id")
+        userIdRef.runTransaction(object : Transaction.Handler {
+            override fun doTransaction(currentData: MutableData): Transaction.Result {
+                var currentId = currentData.getValue(Int::class.java) ?: 0
+                currentData.value = currentId + 1
+                return Transaction.success(currentData)
+            }
+
+            override fun onComplete(error: DatabaseError?, committed: Boolean, currentData: DataSnapshot?) {
+                if (committed) {
+                    callback(currentData?.getValue(Int::class.java) ?: 0)
+                } else {
+                    Toast.makeText(baseContext, "Failed to generate unique user ID.", Toast.LENGTH_SHORT).show()
+                }
+            }
+        })
+    }
+
     private fun registerUser(fullName: String, username: String, email: String, phoneNumber: String, password: String) {
         auth.createUserWithEmailAndPassword(email, password)
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
-                    val userId = auth.currentUser?.uid
-                    if (userId != null) {
-                        val user = User(fullName, username, email, phoneNumber)
-                        database.child("users").child(userId).setValue(user)
-                            .addOnCompleteListener { dbTask ->
-                                if (dbTask.isSuccessful) {
-                                    Toast.makeText(baseContext, "Registration successful. Please log in.", Toast.LENGTH_SHORT).show()
-                                    val intent = Intent(this, LoginActivity::class.java)
-                                    startActivity(intent)
-                                    finish()
-                                } else {
-                                    Toast.makeText(baseContext, "Database update failed.", Toast.LENGTH_SHORT).show()
+                    generateUniqueUserId { uniqueUserId ->
+                        val userId = auth.currentUser?.uid
+                        if (userId != null) {
+                            val user = User(uniqueUserId, fullName, username, email, phoneNumber)
+                            database.child("users").child(userId).setValue(user)
+                                .addOnCompleteListener { dbTask ->
+                                    if (dbTask.isSuccessful) {
+                                        Toast.makeText(baseContext, "Registration successful. Please log in.", Toast.LENGTH_SHORT).show()
+                                        val intent = Intent(this, LoginActivity::class.java)
+                                        startActivity(intent)
+                                        finish()
+                                    } else {
+                                        Toast.makeText(baseContext, "Database update failed.", Toast.LENGTH_SHORT).show()
+                                    }
                                 }
-                            }
+                        }
                     }
                 } else {
                     val errorMessage = when (task.exception) {
@@ -128,5 +159,3 @@ class RegisterActivity : AppCompatActivity() {
             }
     }
 }
-
-data class User(val fullName: String, val username: String, val email: String, val phoneNumber: String)

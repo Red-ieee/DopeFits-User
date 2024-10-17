@@ -28,12 +28,12 @@ class ProductAdapter(
 
     override fun getItemCount(): Int = productList.size
 
-    fun updateProductList(newProductList: List<Product>) {
-        val diffCallback = ProductDiffCallback(productList, newProductList)
-        val diffResult = DiffUtil.calculateDiff(diffCallback)
-        productList = newProductList
-        diffResult.dispatchUpdatesTo(this)
-    }
+//    fun updateProductList(newProductList: List<Product>) {
+//        val diffCallback = ProductDiffCallback(productList, newProductList)
+//        val diffResult = DiffUtil.calculateDiff(diffCallback)
+//        productList = newProductList
+//        diffResult.dispatchUpdatesTo(this)
+//    }
 
     inner class ProductViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val productImage: ImageView = itemView.findViewById(R.id.product_image)
@@ -46,6 +46,7 @@ class ProductAdapter(
             if (product.picUrl.isNotEmpty()) {
                 Glide.with(itemView.context).load(product.picUrl[0]).into(productImage)
             }
+
             itemView.setOnClickListener { onItemClick(product) }
         }
     }
