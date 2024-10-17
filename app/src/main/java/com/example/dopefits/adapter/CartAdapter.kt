@@ -16,6 +16,7 @@ import java.net.URL
 
 class CartAdapter(
     private var products: MutableList<Product>,
+    private val onItemClick: (Product) -> Unit,
     private val onRemoveClick: (Int, Button) -> Unit
 ) : RecyclerView.Adapter<CartAdapter.CartViewHolder>() {
 
@@ -28,7 +29,7 @@ class CartAdapter(
 
     override fun onBindViewHolder(holder: CartViewHolder, position: Int) {
         val product = products[position]
-        holder.bind(product, position, onRemoveClick, isRemoving)
+        holder.bind(product, position, onItemClick, onRemoveClick, isRemoving)
     }
 
     override fun getItemCount(): Int = products.size
@@ -46,6 +47,7 @@ class CartAdapter(
         fun bind(
             product: Product,
             position: Int,
+            onItemClick: (Product) -> Unit,
             onRemoveClick: (Int, Button) -> Unit,
             isRemoving: MutableMap<Int, Boolean>
         ) {
@@ -70,6 +72,10 @@ class CartAdapter(
                     }
                 }.start()
             }
+
+            itemView.setOnClickListener { onItemClick(product) }
+            productImage.setOnClickListener { onItemClick(product) }
+
             removeButton.setOnClickListener {
                 if (isRemoving[position] != true) {
                     isRemoving[position] = true

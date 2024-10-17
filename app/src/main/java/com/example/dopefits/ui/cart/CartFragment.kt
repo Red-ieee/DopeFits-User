@@ -7,11 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.dopefits.R
 import com.example.dopefits.adapter.CartAdapter
 import com.example.dopefits.model.Product
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -32,7 +34,7 @@ class CartFragment : Fragment() {
         val recyclerView: RecyclerView = view.findViewById(R.id.cart_recycler_view)
         totalPriceTextView = view.findViewById(R.id.total_price)
         recyclerView.layoutManager = LinearLayoutManager(context)
-        cartAdapter = CartAdapter(products) { position, button ->
+        cartAdapter = CartAdapter(products, this::onItemClick) { position, button ->
             button.isEnabled = false
             removeFromCart(position) {
                 button.isEnabled = true
@@ -44,57 +46,70 @@ class CartFragment : Fragment() {
         return view
     }
 
+    private fun onItemClick(product: Product) {
+        val bundle = Bundle().apply {
+            putParcelable("product", product)
+        }
+        findNavController().navigate(R.id.action_cartFragment_to_productPageFragment, bundle)
+    }
+
     private fun loadCartItems() {
-        val database = FirebaseDatabase.getInstance()
-        val cartRef = database.getReference("cart")
-        cartRef.addChildEventListener(object : ChildEventListener {
-            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
-                val product = snapshot.getValue(Product::class.java)
-                if (product != null) {
-                    products.add(product)
-                    productKeys.add(snapshot.key ?: "")
-                    cartAdapter.notifyItemInserted(products.size - 1)
-                    calculateTotalPrice()
-                }
-            }
-
-            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
-                val product = snapshot.getValue(Product::class.java)
-                val key = snapshot.key
-                val index = productKeys.indexOf(key)
-                if (product != null && index != -1) {
-                    products[index] = product
-                    cartAdapter.notifyItemChanged(index)
-                    calculateTotalPrice()
-                }
-            }
-
-            override fun onChildRemoved(snapshot: DataSnapshot) {
-                view?.post {
-                    val key = snapshot.key
-                    val index = productKeys.indexOf(key)
-                    if (index != -1) {
-                        productKeys.removeAt(index)
-                        products.removeAt(index)
-                        cartAdapter.notifyItemRemoved(index)
-                        cartAdapter.notifyItemRangeChanged(index, products.size)
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId != null) {
+            val database = FirebaseDatabase.getInstance()
+            val cartRef = database.getReference("users").child(userId).child("Cart")
+            cartRef.addChildEventListener(object : ChildEventListener {
+                override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                    val product = snapshot.getValue(Product::class.java)
+                    if (product != null) {
+                        products.add(product)
+                        productKeys.add(snapshot.key ?: "")
+                        cartAdapter.notifyItemInserted(products.size - 1)
                         calculateTotalPrice()
                     }
                 }
-            }
 
-            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
-            override fun onCancelled(error: DatabaseError) {
-                Log.e("CartFragment", "Failed to load cart items: ${error.message}")
-            }
-        })
+                override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+                    val product = snapshot.getValue(Product::class.java)
+                    val key = snapshot.key
+                    val index = productKeys.indexOf(key)
+                    if (product != null && index != -1) {
+                        products[index] = product
+                        cartAdapter.notifyItemChanged(index)
+                        calculateTotalPrice()
+                    }
+                }
+
+                override fun onChildRemoved(snapshot: DataSnapshot) {
+                    view?.post {
+                        val key = snapshot.key
+                        val index = productKeys.indexOf(key)
+                        if (index != -1) {
+                            productKeys.removeAt(index)
+                            products.removeAt(index)
+                            cartAdapter.notifyItemRemoved(index)
+                            cartAdapter.notifyItemRangeChanged(index, products.size)
+                            calculateTotalPrice()
+                        }
+                    }
+                }
+
+                override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
+                override fun onCancelled(error: DatabaseError) {
+                    Log.e("CartFragment", "Failed to load cart items: ${error.message}")
+                }
+            })
+        } else {
+            Log.e("CartFragment", "User not logged in")
+        }
     }
 
     private fun removeFromCart(position: Int, onComplete: () -> Unit) {
-        if (position in 0 until products.size) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId != null && position in 0 until products.size) {
             val productKey = productKeys[position]
             val database = FirebaseDatabase.getInstance()
-            val cartRef = database.getReference("cart").child(productKey)
+            val cartRef = database.getReference("users").child(userId).child("Cart").child(productKey)
             cartRef.removeValue().addOnSuccessListener {
                 onComplete()
             }.addOnFailureListener {
