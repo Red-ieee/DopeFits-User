@@ -10,7 +10,8 @@
         android:layout_height="wrap_content"
         android:text="@string/back"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        android:backgroundTint="@color/colorPrimary"/>
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/view_pager"
@@ -179,5 +180,6 @@
         app:layout_constraintTop_toBottomOf="@id/product_size"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@color/colorPrimary"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
