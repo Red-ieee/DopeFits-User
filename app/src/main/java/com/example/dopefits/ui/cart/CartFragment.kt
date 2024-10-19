@@ -124,13 +124,19 @@ class CartFragment : Fragment() {
             val cartRef = database.getReference("users").child(userId).child("Cart").child(productKey)
 
             cartRef.removeValue().addOnSuccessListener {
-                Log.d("CartFragment", "Product removed from Firebase: ${products[position].title}")
-                onComplete()
+                if (position in 0 until products.size) {
+                    Log.d("CartFragment", "Product removed from Firebase: ${products[position].title}")
+                    onComplete()
+                } else {
+                    Log.e("CartFragment", "Invalid position after removal: $position")
+                    onComplete()
+                }
             }.addOnFailureListener {
                 Log.e("CartFragment", "Failed to remove product from Firebase: ${products[position].title}")
                 onComplete()
             }
         } else {
+            Log.e("CartFragment", "Invalid position: $position")
             onComplete()
         }
     }
