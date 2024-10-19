@@ -16,23 +16,5 @@ data class Product(
     val issue: String = "",
     val size: String = "",
     val dimensions: String = "",
-    val stability: Int = 0,
-    var quantity: Int = 0
-) : Parcelable {
-    // No-argument constructor required for Firebase
-    constructor() : this(
-        id = 0,
-        title = "",
-        categoryId = 0,
-        condition = "",
-        description = "",
-        brand = "",
-        picUrl = emptyList(),
-        price = 0.0,
-        issue = "",
-        size = "",
-        dimensions = "",
-        stability = 0,
-        quantity = 0
-    )
-}
+    val stability: Int = 0
+) : Parcelable
