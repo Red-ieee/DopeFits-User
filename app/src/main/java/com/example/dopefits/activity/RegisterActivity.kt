@@ -1,5 +1,6 @@
 package com.example.dopefits.activity
 
+import BaseActivity
 import android.content.Intent
 import android.os.Bundle
 import android.text.InputFilter
@@ -15,7 +16,7 @@ import com.google.firebase.auth.FirebaseAuthWeakPasswordException
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.FirebaseDatabase
 
-class RegisterActivity : AppCompatActivity() {
+class RegisterActivity : BaseActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var database: DatabaseReference
     private lateinit var registerButton: Button

@@ -1,5 +1,6 @@
 package com.example.dopefits.ui.home
 
+import BaseFragment
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -17,7 +18,7 @@ import com.example.dopefits.model.Product
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.database.*
 
-class HomeFragment : Fragment() {
+class HomeFragment : BaseFragment() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var productAdapter: ProductAdapter

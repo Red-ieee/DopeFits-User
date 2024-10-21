@@ -1,5 +1,6 @@
 package com.example.dopefits.ui.productpage
 
+import BaseFragment
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,7 +9,7 @@ import android.widget.Button
 import android.widget.RatingBar
 import android.widget.TextView
 import android.widget.Toast
-import androidx.fragment.app.Fragment
+import androidx.activity.OnBackPressedCallback
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import com.example.dopefits.R
@@ -21,7 +22,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class ProductPageFragment : Fragment() {
+class ProductPageFragment : BaseFragment() {
 
     private lateinit var product: Product
 
@@ -30,6 +31,12 @@ class ProductPageFragment : Fragment() {
         arguments?.let {
             product = it.getParcelable("product")!!
         }
+
+        requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                findNavController().navigateUp()
+            }
+        })
     }
 
     override fun onCreateView(

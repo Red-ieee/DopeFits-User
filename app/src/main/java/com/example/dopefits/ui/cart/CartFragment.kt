@@ -1,5 +1,6 @@
 package com.example.dopefits.ui.cart
 
+import BaseFragment
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -22,7 +23,7 @@ import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
 
-class CartFragment : Fragment() {
+class CartFragment : BaseFragment() {
 
     private lateinit var cartAdapter: CartAdapter
     private lateinit var totalPriceTextView: TextView
