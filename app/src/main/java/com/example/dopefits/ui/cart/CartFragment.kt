@@ -10,18 +10,27 @@ import android.widget.Button
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.dopefits.R
 import com.example.dopefits.adapter.CartAdapter
 import com.example.dopefits.model.Product
+import com.example.dopefits.network.PayMongoService
+import com.example.dopefits.network.PaymentLinkRequest
+import com.example.dopefits.network.PaymentLinkData
+import com.example.dopefits.network.PaymentLinkAttributes
+import com.example.dopefits.network.PaymentLinkResponse
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.FirebaseDatabase
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class CartFragment : BaseFragment() {
 
@@ -55,7 +64,10 @@ class CartFragment : BaseFragment() {
         removeSelectedButton.setOnClickListener { confirmAndRemoveSelectedItems() }
         proceedToCheckoutButton.setOnClickListener { proceedToCheckout() }
 
-        cartAdapter.onSelectionChanged = { updateButtonStates() }
+        cartAdapter.onSelectionChanged = {
+            updateButtonStates()
+            calculateTotalPrice()
+        }
 
         loadCartItems()
         updateButtonStates()
@@ -166,12 +178,51 @@ class CartFragment : BaseFragment() {
 
     private fun proceedToCheckout() {
         val selectedProducts = cartAdapter.getSelectedProducts()
-        Log.d("CartFragment", "Proceeding to checkout with products: ${selectedProducts.map { it.title }}")
-        // Handle checkout logic with selectedProducts
+        val totalAmount = (selectedProducts.sumOf { it.price } * 100).toInt() // Convert to cents and then to Int
+        val description = "Purchase of ${selectedProducts.size} items"
+        val remarks = "sample remarks"
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://api.paymongo.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        val service = retrofit.create(PayMongoService::class.java)
+        val request = PaymentLinkRequest(
+            data = PaymentLinkData(
+                attributes = PaymentLinkAttributes(
+                    amount = totalAmount,
+                    description = description,
+                    remarks = remarks
+                )
+            )
+        )
+
+        service.createPaymentLink(request).enqueue(object : Callback<PaymentLinkResponse> {
+            override fun onResponse(call: Call<PaymentLinkResponse>, response: Response<PaymentLinkResponse>) {
+                if (response.isSuccessful) {
+                    val paymentLink = response.body()?.data?.attributes?.checkout_url
+                    paymentLink?.let {
+                        val bundle = Bundle().apply {
+                            putString("payment_url", it)
+                        }
+                        findNavController().navigate(R.id.action_cartFragment_to_paymentFragment, bundle)
+                    }
+                } else {
+                    val errorBody = response.errorBody()?.string()
+                    Log.e("CartFragment", "Failed to create payment link: ${response.code()} - $errorBody")
+                }
+            }
+
+            override fun onFailure(call: Call<PaymentLinkResponse>, t: Throwable) {
+                Log.e("CartFragment", "Error creating payment link", t)
+            }
+        })
     }
 
     private fun calculateTotalPrice() {
-        val totalPrice = products.sumOf { it.price }
+        val selectedProducts = cartAdapter.getSelectedProducts()
+        val totalPrice = selectedProducts.sumOf { it.price }
         totalPriceTextView.text = "Total: ₱$totalPrice"
         Log.d("CartFragment", "Total price calculated: ₱$totalPrice")
     }
