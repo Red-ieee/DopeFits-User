@@ -171,7 +171,7 @@ class CartFragment : BaseFragment() {
     }
 
     private fun calculateTotalPrice() {
-        val totalPrice = cartAdapter.getSelectedProducts().sumOf { it.price }
+        val totalPrice = products.sumOf { it.price }
         totalPriceTextView.text = "Total: ₱$totalPrice"
         Log.d("CartFragment", "Total price calculated: ₱$totalPrice")
     }
