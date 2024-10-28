@@ -1,12 +1,15 @@
 package com.example.dopefits.network
 
 data class PaymentLinkRequest(
-    val amount: Int,
-    val description: String,
-    val redirect: Redirect
+    val data: PaymentLinkData
 )
 
-data class Redirect(
-    val success: String,
-    val failed: String
+data class PaymentLinkData(
+    val attributes: PaymentLinkAttributes
+)
+
+data class PaymentLinkAttributes(
+    val amount: Int,
+    val description: String,
+    val remarks: String
 )

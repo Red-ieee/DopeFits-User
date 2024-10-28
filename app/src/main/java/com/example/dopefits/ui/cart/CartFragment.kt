@@ -18,8 +18,9 @@ import com.example.dopefits.adapter.CartAdapter
 import com.example.dopefits.model.Product
 import com.example.dopefits.network.PayMongoService
 import com.example.dopefits.network.PaymentLinkRequest
+import com.example.dopefits.network.PaymentLinkData
+import com.example.dopefits.network.PaymentLinkAttributes
 import com.example.dopefits.network.PaymentLinkResponse
-import com.example.dopefits.network.Redirect
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
@@ -179,6 +180,7 @@ class CartFragment : BaseFragment() {
         val selectedProducts = cartAdapter.getSelectedProducts()
         val totalAmount = (selectedProducts.sumOf { it.price } * 100).toInt() // Convert to cents and then to Int
         val description = "Purchase of ${selectedProducts.size} items"
+        val remarks = "sample remarks"
 
         val retrofit = Retrofit.Builder()
             .baseUrl("https://api.paymongo.com/")
@@ -187,11 +189,12 @@ class CartFragment : BaseFragment() {
 
         val service = retrofit.create(PayMongoService::class.java)
         val request = PaymentLinkRequest(
-            amount = totalAmount,
-            description = description,
-            redirect = Redirect(
-                success = "https://example.com/success",
-                failed = "https://example.com/failed"
+            data = PaymentLinkData(
+                attributes = PaymentLinkAttributes(
+                    amount = totalAmount,
+                    description = description,
+                    remarks = remarks
+                )
             )
         )
 
@@ -206,7 +209,8 @@ class CartFragment : BaseFragment() {
                         findNavController().navigate(R.id.action_cartFragment_to_paymentFragment, bundle)
                     }
                 } else {
-                    Log.e("CartFragment", "Failed to create payment link: ${response.errorBody()?.string()}")
+                    val errorBody = response.errorBody()?.string()
+                    Log.e("CartFragment", "Failed to create payment link: ${response.code()} - $errorBody")
                 }
             }
 
