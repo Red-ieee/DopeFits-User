@@ -7,13 +7,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import android.widget.Button
 import androidx.activity.OnBackPressedCallback
 import androidx.navigation.fragment.findNavController
 import com.example.dopefits.R
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class PaymentFragment : BaseFragment() {
 
     private lateinit var paymentWebView: WebView
+    private lateinit var backButton: Button
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -21,7 +24,9 @@ class PaymentFragment : BaseFragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_payment, container, false)
         paymentWebView = view.findViewById(R.id.payment_webview)
+        backButton = view.findViewById(R.id.back_button)
         setupWebView()
+        setupBackButton()
         return view
     }
 
@@ -35,6 +40,7 @@ class PaymentFragment : BaseFragment() {
                 }
             }
         )
+        hideBottomNav()
     }
 
     private fun setupWebView() {
@@ -45,5 +51,26 @@ class PaymentFragment : BaseFragment() {
         paymentUrl?.let {
             paymentWebView.loadUrl(it)
         }
+    }
+
+    private fun setupBackButton() {
+        backButton.setOnClickListener {
+            findNavController().navigateUp()
+        }
+    }
+
+    private fun hideBottomNav() {
+        val bottomNav = requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        bottomNav.visibility = View.GONE
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        showBottomNav()
+    }
+
+    private fun showBottomNav() {
+        val bottomNav = requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        bottomNav.visibility = View.VISIBLE
     }
 }
