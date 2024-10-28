@@ -22,6 +22,9 @@
         <action
             android:id="@+id/action_cartFragment_to_productPageFragment"
             app:destination="@id/nav_product_page" />
+        <action
+            android:id="@+id/action_cartFragment_to_paymentFragment"
+            app:destination="@id/nav_payment" />
     </fragment>
 
     <fragment
@@ -44,5 +47,18 @@
         <argument
             android:name="product"
             app:argType="com.example.dopefits.model.Product" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/nav_payment"
+        android:name="com.example.dopefits.ui.payment.PaymentFragment"
+        android:label="Payment"
+        tools:layout="@layout/fragment_payment">
+        <argument
+            android:name="payment_url"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_paymentFragment_to_nav_home"
+            app:destination="@id/nav_home" />
     </fragment>
 </navigation>
