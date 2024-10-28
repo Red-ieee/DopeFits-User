@@ -59,6 +59,11 @@ android {
 }
 
 dependencies {
+    implementation ("com.google.firebase:firebase-database:20.0.5")
+    implementation ("com.google.firebase:firebase-auth:21.0.3")
+    implementation ("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+
     implementation("com.tbuonomo:dotsindicator:5.0")
     implementation(libs.glide)
     implementation(libs.androidx.core.ktx)
