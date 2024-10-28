@@ -53,5 +53,6 @@
     <string name="given_name">First Name</string>
     <string name="surname">Surname</string>
     <string name="address">Address</string>
+    <string name="profile_image">Profile Picture</string>
 
 </resources>
