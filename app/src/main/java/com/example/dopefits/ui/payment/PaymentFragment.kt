@@ -5,18 +5,22 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.Button
 import androidx.activity.OnBackPressedCallback
+import androidx.appcompat.app.AlertDialog
 import androidx.navigation.fragment.findNavController
 import com.example.dopefits.R
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.database.FirebaseDatabase
+import com.google.android.material.button.MaterialButton
 
 class PaymentFragment : BaseFragment() {
 
     private lateinit var paymentWebView: WebView
-    private lateinit var backButton: Button
+    private lateinit var backButton: MaterialButton
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -30,6 +34,18 @@ class PaymentFragment : BaseFragment() {
         return view
     }
 
+    override fun onResume() {
+        super.onResume()
+        val bottomNav = requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        bottomNav.visibility = View.GONE
+    }
+
+    override fun onPause() {
+        super.onPause()
+        val bottomNav = requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation)
+        bottomNav.visibility = View.VISIBLE
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         requireActivity().onBackPressedDispatcher.addCallback(
@@ -40,11 +56,22 @@ class PaymentFragment : BaseFragment() {
                 }
             }
         )
-        hideBottomNav()
     }
 
     private fun setupWebView() {
-        paymentWebView.webViewClient = WebViewClient()
+        paymentWebView.webViewClient = object : WebViewClient() {
+            override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean {
+                val url = request?.url.toString()
+                if (url.contains("success")) {
+                    handlePaymentSuccess()
+                    return true
+                } else if (url.contains("failure")) {
+                    handlePaymentFailure()
+                    return true
+                }
+                return super.shouldOverrideUrlLoading(view, request)
+            }
+        }
         paymentWebView.settings.javaScriptEnabled = true
 
         val paymentUrl = arguments?.getString("payment_url")
@@ -59,18 +86,40 @@ class PaymentFragment : BaseFragment() {
         }
     }
 
-    private fun hideBottomNav() {
-        val bottomNav = requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        bottomNav.visibility = View.GONE
+    private fun handlePaymentSuccess() {
+        clearCart()
+        AlertDialog.Builder(requireContext())
+            .setTitle("Payment Successful")
+            .setMessage("Your payment was successful. Thank you for your purchase!")
+            .setPositiveButton("OK") { dialog, _ ->
+                dialog.dismiss()
+                findNavController().navigate(R.id.action_paymentFragment_to_nav_home)
+            }
+            .show()
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        showBottomNav()
+    private fun handlePaymentFailure() {
+        AlertDialog.Builder(requireContext())
+            .setTitle("Payment Failed")
+            .setMessage("Your payment failed. Please try again.")
+            .setPositiveButton("OK") { dialog, _ ->
+                dialog.dismiss()
+                findNavController().navigateUp()
+            }
+            .show()
     }
 
-    private fun showBottomNav() {
-        val bottomNav = requireActivity().findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        bottomNav.visibility = View.VISIBLE
+    private fun clearCart() {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId != null) {
+            val database = FirebaseDatabase.getInstance()
+            val cartRef = database.getReference("users").child(userId).child("Cart")
+
+            cartRef.removeValue().addOnSuccessListener {
+                // Cart cleared successfully
+            }.addOnFailureListener {
+                // Failed to clear cart
+            }
+        }
     }
 }
