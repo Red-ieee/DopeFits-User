@@ -50,6 +50,12 @@
     </fragment>
 
     <fragment
+        android:id="@+id/ordersFragment"
+        android:name="com.example.dopefits.ui.orders.OrdersFragment"
+        android:label="Orders"
+        tools:layout="@layout/fragment_orders" />
+
+    <fragment
         android:id="@+id/nav_payment"
         android:name="com.example.dopefits.ui.payment.PaymentFragment"
         android:label="Payment"
