@@ -47,8 +47,24 @@ class OrdersFragment : Fragment() {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     ordersList.clear()
                     for (orderSnapshot in dataSnapshot.children) {
-                        val order = orderSnapshot.getValue(Order::class.java)
-                        order?.let { ordersList.add(it) }
+                        val orderMap = orderSnapshot.value as? Map<String, Any>
+                        orderMap?.let {
+                            val productImage = orderMap["productImage"]
+                            val productImageList = if (productImage is String) {
+                                listOf(productImage)
+                            } else {
+                                productImage as? List<String> ?: emptyList()
+                            }
+                            val order = Order(
+                                orderId = orderMap["orderId"] as? String ?: "",
+                                orderDate = orderMap["orderDate"] as? String ?: "",
+                                orderStatus = orderMap["orderStatus"] as? String ?: "",
+                                orderTotal = orderMap["orderTotal"] as? String ?: "",
+                                productName = orderMap["productName"] as? String ?: "",
+                                productImage = productImageList
+                            )
+                            ordersList.add(order)
+                        }
                     }
                     ordersAdapter.notifyDataSetChanged()
                 }

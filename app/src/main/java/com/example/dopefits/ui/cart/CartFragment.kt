@@ -21,6 +21,7 @@ import com.example.dopefits.network.PaymentLinkRequest
 import com.example.dopefits.network.PaymentLinkData
 import com.example.dopefits.network.PaymentLinkAttributes
 import com.example.dopefits.network.PaymentLinkResponse
+import com.example.dopefits.ui.orders.Order
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ChildEventListener
 import com.google.firebase.database.DataSnapshot
@@ -31,6 +32,10 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
+
 
 class CartFragment : BaseFragment() {
 
@@ -214,16 +219,6 @@ class CartFragment : BaseFragment() {
                             putStringArrayList("selected_product_ids", ArrayList(selectedProductIds))
                         }
                         findNavController().navigate(R.id.action_cartFragment_to_paymentFragment, bundle)
-
-                        // Remove only the selected items from the cart
-                        val selectedPositions = cartAdapter.getSelectedItems()
-                        selectedPositions.sortedDescending().forEach { position ->
-                            removeFromCart(position) {
-                                cartAdapter.setRemovingFlag(position, false)
-                                calculateTotalPrice()
-                                updateButtonStates()
-                            }
-                        }
                     }
                 } else {
                     val errorBody = response.errorBody()?.string()
@@ -237,11 +232,42 @@ class CartFragment : BaseFragment() {
         })
     }
 
+    fun saveOrderToFirebase(products: List<Product>, totalAmount: Int) {
+        val userId = FirebaseAuth.getInstance().currentUser?.uid
+        if (userId != null) {
+            val database = FirebaseDatabase.getInstance().reference
+            val orderId = database.child("orders").child(userId).push().key
+            if (orderId != null) {
+                val orderDate = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(Date())
+                val productNames = products.joinToString(", ") { it.title }
+                val productImages = products.flatMap { it.picUrl }
+
+                val order = Order(
+                    orderId = orderId,
+                    orderDate = orderDate,
+                    orderStatus = "Completed",
+                    orderTotal = totalAmount.toString(),
+                    productName = productNames,
+                    productImage = productImages
+                )
+                database.child("orders").child(userId).child(orderId).setValue(order)
+                    .addOnSuccessListener {
+                        Log.d("CartFragment", "Order saved to Firebase: $order")
+                    }
+                    .addOnFailureListener {
+                        Log.e("CartFragment", "Failed to save order to Firebase", it)
+                    }
+            }
+        } else {
+            Log.e("CartFragment", "User not logged in")
+        }
+    }
+
     private fun calculateTotalPrice() {
         val selectedProducts = cartAdapter.getSelectedProducts()
         val totalPrice = selectedProducts.sumOf { it.price }
-        totalPriceTextView.text = "Total: ₱$totalPrice"
-        Log.d("CartFragment", "Total price calculated: ₱$totalPrice")
+        totalPriceTextView.text = "Total: ₱${totalPrice}"
+        Log.d("CartFragment", "Total price calculated: ₱${totalPrice}")
     }
 
     private fun updateButtonStates() {
