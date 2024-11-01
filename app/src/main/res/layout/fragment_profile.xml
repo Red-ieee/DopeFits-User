@@ -2,18 +2,288 @@
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:padding="16dp">
 
+    <!-- Profile Image -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/profile_image_container"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
+        android:layout_marginTop="50dp"
+        app:cardCornerRadius="60dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/profile_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:backgroundTint="@color/colorAccent"
+            android:scaleType="centerCrop" />
+    </androidx.cardview.widget.CardView>
+
+    <!-- Customer Name -->
     <TextView
-        android:id="@+id/profile_text"
+        android:id="@+id/customer_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/profile_fragment"
-        android:textSize="24sp"
+        android:text="Sample Customer Name"
+        android:textSize="18sp"
+        android:textStyle="bold"
         android:layout_marginTop="16dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/profile_image_container" />
+
+    <!-- My Account Dropdown -->
+    <LinearLayout
+        android:id="@+id/account_dropdown_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/customer_name">
+
+        <!-- Dropdown Header -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_my_account_dropdown"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/colorSecondary"
+            android:drawablePadding="8dp"
+            android:drawableTint="@color/white"
+            android:padding="16dp"
+            android:text="My Account" />
+
+        <!-- Dropdown Content (Initially Gone) -->
+        <LinearLayout
+            android:id="@+id/dropdown_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/dropdown_profile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:padding="16dp"
+                android:text="Username" />
+
+            <TextView
+                android:id="@+id/dropdown_password"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:padding="16dp"
+                android:text="Password" />
+
+            <TextView
+                android:id="@+id/dropdown_address"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:padding="16dp"
+                android:text="Address" />
+
+            <TextView
+                android:id="@+id/dropdown_MobileNumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:padding="16dp"
+                android:text="Mobile Number" />
+
+            <TextView
+                android:id="@+id/dropdown_Email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:padding="16dp"
+                android:text="Email" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Notification Dropdown -->
+    <LinearLayout
+        android:id="@+id/notification_dropdown_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/account_dropdown_container">
+
+        <!-- Dropdown Header -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_notification_dropdown"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/colorSecondary"
+            android:drawablePadding="8dp"
+            android:drawableTint="@color/white"
+            android:padding="16dp"
+            android:text="Notification" />
+
+        <!-- Dropdown Content (Initially Gone) -->
+        <LinearLayout
+            android:id="@+id/notification_dropdown_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/notification_order_confirmed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:padding="16dp"
+                android:text="Your order has been confirmed!" />
+
+            <TextView
+                android:id="@+id/notification_order_shipped"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:padding="16dp"
+                android:text="Your order has been shipped!" />
+
+            <TextView
+                android:id="@+id/notification_delivery"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:padding="16dp"
+                android:text="Your order will be delivered today!" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Order History Dropdown -->
+    <LinearLayout
+        android:id="@+id/order_history_dropdown_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/notification_dropdown_container">
+
+
+        <!-- Dropdown Content (Initially Gone) -->
+        <LinearLayout
+            android:id="@+id/order_history_dropdown_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <!-- Order History options -->
+            <TextView
+                android:id="@+id/order_history_sample_item_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:padding="16dp"
+                android:text="Sample Item Name and Sample Item Price" />
+
+            <TextView
+                android:id="@+id/order_history_recent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:padding="16dp"
+                android:text="Recent Orders" />
+
+            <TextView
+                android:id="@+id/order_history_past"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:padding="16dp"
+                android:text="Past Orders" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Settings Dropdown -->
+    <LinearLayout
+        android:id="@+id/settings_dropdown_container"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/order_history_dropdown_container">
+
+        <!-- Dropdown Header -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_settings_dropdown"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@color/colorSecondary"
+            android:drawablePadding="8dp"
+            android:drawableTint="@color/white"
+            android:padding="16dp"
+            android:text="Settings" />
+
+        <!-- Dropdown Content (Initially Gone) -->
+        <LinearLayout
+            android:id="@+id/settings_dropdown_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/settings_notifications"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:padding="16dp"
+                android:text="Notification Settings" />
+
+            <TextView
+                android:id="@+id/settings_privacy"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:padding="16dp"
+                android:text="Privacy" />
+
+            <TextView
+                android:id="@+id/settings_help"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:padding="16dp"
+                android:text="Help and Support" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <!-- Log Out Button -->
+    <Button
+        android:id="@+id/btn_logout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:backgroundTint="@color/colorSecondary"
+        android:drawableTint="@color/white"
+        android:padding="16dp"
+        android:text="Log Out"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/settings_dropdown_container" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
