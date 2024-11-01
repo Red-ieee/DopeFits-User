@@ -13,9 +13,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.navigation.fragment.findNavController
 import com.example.dopefits.R
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.FirebaseDatabase
-import com.google.android.material.button.MaterialButton
 
 class PaymentFragment : BaseFragment() {
 
@@ -87,7 +87,8 @@ class PaymentFragment : BaseFragment() {
     }
 
     private fun handlePaymentSuccess() {
-        clearCart()
+        val selectedProductIds = arguments?.getStringArrayList("selected_product_ids") ?: emptyList()
+        clearCart(selectedProductIds)
         AlertDialog.Builder(requireContext())
             .setTitle("Payment Successful")
             .setMessage("Your payment was successful. Thank you for your purchase!")
@@ -109,16 +110,18 @@ class PaymentFragment : BaseFragment() {
             .show()
     }
 
-    private fun clearCart() {
+    private fun clearCart(selectedProductIds: List<String>) {
         val userId = FirebaseAuth.getInstance().currentUser?.uid
         if (userId != null) {
             val database = FirebaseDatabase.getInstance()
             val cartRef = database.getReference("users").child(userId).child("Cart")
 
-            cartRef.removeValue().addOnSuccessListener {
-                // Cart cleared successfully
-            }.addOnFailureListener {
-                // Failed to clear cart
+            selectedProductIds.forEach { productId ->
+                cartRef.child(productId).removeValue().addOnSuccessListener {
+                    // Item removed successfully
+                }.addOnFailureListener {
+                    // Failed to remove item
+                }
             }
         }
     }

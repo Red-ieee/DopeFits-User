@@ -178,6 +178,11 @@ class CartFragment : BaseFragment() {
 
     private fun proceedToCheckout() {
         val selectedProducts = cartAdapter.getSelectedProducts()
+        if (selectedProducts.isEmpty()) {
+            Log.d("CartFragment", "No items selected for checkout")
+            return
+        }
+
         val totalAmount = (selectedProducts.sumOf { it.price } * 100).toInt() // Convert to cents and then to Int
         val description = "Purchase of ${selectedProducts.size} items"
         val remarks = "sample remarks"
@@ -203,10 +208,22 @@ class CartFragment : BaseFragment() {
                 if (response.isSuccessful) {
                     val paymentLink = response.body()?.data?.attributes?.checkout_url
                     paymentLink?.let {
+                        val selectedProductIds = selectedProducts.map { it.id.toString() }
                         val bundle = Bundle().apply {
                             putString("payment_url", it)
+                            putStringArrayList("selected_product_ids", ArrayList(selectedProductIds))
                         }
                         findNavController().navigate(R.id.action_cartFragment_to_paymentFragment, bundle)
+
+                        // Remove only the selected items from the cart
+                        val selectedPositions = cartAdapter.getSelectedItems()
+                        selectedPositions.sortedDescending().forEach { position ->
+                            removeFromCart(position) {
+                                cartAdapter.setRemovingFlag(position, false)
+                                calculateTotalPrice()
+                                updateButtonStates()
+                            }
+                        }
                     }
                 } else {
                     val errorBody = response.errorBody()?.string()
