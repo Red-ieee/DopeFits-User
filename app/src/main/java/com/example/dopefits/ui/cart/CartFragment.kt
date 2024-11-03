@@ -188,48 +188,11 @@ class CartFragment : BaseFragment() {
             return
         }
 
-        val totalAmount = (selectedProducts.sumOf { it.price } * 100).toInt() // Convert to cents and then to Int
-        val description = "Purchase of ${selectedProducts.size} items"
-        val remarks = "sample remarks"
-
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://api.paymongo.com/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-
-        val service = retrofit.create(PayMongoService::class.java)
-        val request = PaymentLinkRequest(
-            data = PaymentLinkData(
-                attributes = PaymentLinkAttributes(
-                    amount = totalAmount,
-                    description = description,
-                    remarks = remarks
-                )
-            )
-        )
-
-        service.createPaymentLink(request).enqueue(object : Callback<PaymentLinkResponse> {
-            override fun onResponse(call: Call<PaymentLinkResponse>, response: Response<PaymentLinkResponse>) {
-                if (response.isSuccessful) {
-                    val paymentLink = response.body()?.data?.attributes?.checkout_url
-                    paymentLink?.let {
-                        val selectedProductIds = selectedProducts.map { it.id.toString() }
-                        val bundle = Bundle().apply {
-                            putString("payment_url", it)
-                            putStringArrayList("selected_product_ids", ArrayList(selectedProductIds))
-                        }
-                        findNavController().navigate(R.id.action_cartFragment_to_paymentFragment, bundle)
-                    }
-                } else {
-                    val errorBody = response.errorBody()?.string()
-                    Log.e("CartFragment", "Failed to create payment link: ${response.code()} - $errorBody")
-                }
-            }
-
-            override fun onFailure(call: Call<PaymentLinkResponse>, t: Throwable) {
-                Log.e("CartFragment", "Error creating payment link", t)
-            }
-        })
+        val selectedProductIds = selectedProducts.map { it.id.toString() }
+        val bundle = Bundle().apply {
+            putStringArrayList("selected_product_ids", ArrayList(selectedProductIds))
+        }
+        findNavController().navigate(R.id.action_cartFragment_to_confirmationFragment, bundle)
     }
 
     fun saveOrderToFirebase(products: List<Product>, totalAmount: Int) {

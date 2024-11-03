@@ -23,8 +23,8 @@
             android:id="@+id/action_cartFragment_to_productPageFragment"
             app:destination="@id/nav_product_page" />
         <action
-            android:id="@+id/action_cartFragment_to_paymentFragment"
-            app:destination="@id/nav_payment" />
+            android:id="@+id/action_cartFragment_to_confirmationFragment"
+            app:destination="@id/confirmationFragment" />
     </fragment>
 
     <fragment
@@ -67,4 +67,22 @@
             android:id="@+id/action_paymentFragment_to_nav_home"
             app:destination="@id/nav_home" />
     </fragment>
+
+    <fragment
+        android:id="@+id/confirmationFragment"
+        android:name="com.example.dopefits.ui.checkout.ConfirmationFragment"
+        android:label="Confirmation">
+        <action
+            android:id="@+id/action_confirmationFragment_to_paymentFragment"
+            app:destination="@id/nav_payment" />
+        <action
+            android:id="@+id/action_confirmationFragment_to_cashOnDeliveryFragment"
+            app:destination="@id/cashOnDeliveryFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/cashOnDeliveryFragment"
+        android:name="com.example.dopefits.ui.checkout.CashOnDeliveryFragment"
+        android:label="Cash on Delivery"
+        tools:layout="@layout/fragment_cash_on_delivery" />
 </navigation>
