@@ -51,10 +51,8 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.composeCompiler.get()
     }
-    packaging {
-        resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
-        }
+    packagingOptions{
+        exclude("META-INF/DEPENDENCIES")
     }
 }
 
@@ -64,6 +62,10 @@ dependencies {
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
     implementation("io.github.ronjunevaldoz:paymongo-kotlin-android:1.0.2-dev06")
+    implementation ("com.google.firebase:firebase-messaging-ktx:23.1.0")
+    implementation("com.karumi:dexter:6.2.3")
+    implementation("com.google.auth:google-auth-library-oauth2-http:1.19.0")
+
 
     implementation("com.tbuonomo:dotsindicator:5.0")
     implementation(libs.glide)
@@ -92,4 +94,5 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
 }
